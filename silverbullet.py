@@ -149,6 +149,15 @@ def draw_progress_bar(completed, total, bar_length=35):
     sys.stdout.write(f"\r {C.BOLD}{C.CYAN}[{C.NEON}{arrow}{C.DARK}{spaces}{C.CYAN}]{C.RESET} {int(percent * 100)}%  {C.YELLOW}({completed}/{total} nodes){C.RESET}")
     sys.stdout.flush()
 
+# --- SAFE MIXED SORTING ---
+def sort_key(item):
+    ip_match = re.search(r'\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b', item)
+    if ip_match:
+        # Group 0 puts IPs first, then sorts by numerical blocks
+        return (0, tuple(int(x) for x in ip_match.group(0).split('.')), item)
+    # Group 1 puts protocol links second, sorting them alphabetically
+    return (1, (), item)
+
 # --- MAIN ENGINE ---
 def main():
     clear_screen()
@@ -205,12 +214,7 @@ def main():
         print(f"\n{C.RED}[!] NO PROXIES FOUND. Target lists completely unreachable.{C.RESET}")
         return
 
-    def sort_key(item):
-        ip_match = re.search(r'\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b', item)
-        if ip_match:
-            return tuple(int(x) for x in ip_match.group(0).split('.'))
-        return item
-
+    # Uses the updated safe structure to prevent type comparison errors
     sorted_proxies = sorted(list(master_set), key=sort_key)
 
     date_str = time.strftime("%Y-%m-%d")

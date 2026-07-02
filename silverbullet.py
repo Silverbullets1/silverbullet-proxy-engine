@@ -103,7 +103,7 @@ def process_text(text, category):
         decoded_text = text
         if re.match(r'^[a-zA-Z0-9+/=\s\n\r]+$', text.strip()) and len(text.strip()) > 100:
             try:
-                decoded_text = base64.b64decode(text.strip().replace('\s', '')).decode('utf-8', errors='ignore')
+                decoded_text = base64.b64decode(text.strip().replace(r'\s', '')).decode('utf-8', errors='ignore')
             except Exception:
                 pass
         
@@ -129,7 +129,7 @@ def clear_screen():
     os.system('cls' if os.name == 'nt' else 'clear')
 
 def print_banner():
-    banner = f"""{C.NEON}{C.BOLD}
+    banner = fr"""{C.NEON}{C.BOLD}
   ____ ___ _ __     __ _____  ____  ____  _   _  _     _     _____  ____  
  / ___|_ _| |\ \   / /| ____||  _ \| __ )| | | || |   | |   | ____||_   _| 
  \___ \| | | | \ \ / / |  _|  | |_) |  _ \| | | || |   | |   |  _|    | |   
@@ -181,7 +181,6 @@ def main():
     print(f"\n{C.BOLD}{C.NEON}[+]{C.RESET} Launching query handshake across {len(tasks)} cluster nodes...\n")
     start_time = time.time()
     
-    # Run concurrent requests
     with concurrent.futures.ThreadPoolExecutor(max_workers=15) as executor:
         future_to_url = {executor.submit(fetch_url, url, cat): (url, cat) for url, cat in tasks}
         
@@ -206,7 +205,6 @@ def main():
         print(f"\n{C.RED}[!] NO PROXIES FOUND. Target lists completely unreachable.{C.RESET}")
         return
 
-    # Sort logic
     def sort_key(item):
         ip_match = re.search(r'\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b', item)
         if ip_match:
@@ -215,7 +213,6 @@ def main():
 
     sorted_proxies = sorted(list(master_set), key=sort_key)
 
-    # Save logic
     date_str = time.strftime("%Y-%m-%d")
     txt_filename = f"Silverbullet_Proxies_{date_str}.txt"
     json_filename = f"Silverbullet_Proxies_{date_str}.json"
@@ -226,7 +223,6 @@ def main():
     with open(json_filename, 'w', encoding='utf-8') as f:
         json.dump(sorted_proxies, f, indent=2)
 
-    # Stats Box
     print(f"\n{C.CYAN} ┌──────────────────────────────────────────┐{C.RESET}")
     print(f"{C.CYAN} │ {C.BOLD}{C.NEON}SYSTEM STATISTICS{C.RESET}{C.CYAN}                        │{C.RESET}")
     print(f"{C.CYAN} ├──────────────────────────────────────────┤{C.RESET}")
